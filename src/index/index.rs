@@ -349,6 +349,32 @@ impl Index {
         IndexBuilder::new().schema(schema).create_in_ram().unwrap()
     }
 
+    /// Creates a new index using the [`RamDirectory`].
+    ///
+    /// The index will be allocated in anonymous memory.
+    /// This is useful for indexing small set of documents
+    /// for instances like unit test or temporary in memory index.
+    pub fn create_from_docs_in_ram<D, I>(schema: Schema, docs: I, mem_budget: usize) -> crate::Result<Index>
+        where D: Document,
+              I: IntoIterator<Item = D>
+    {
+        let index = IndexBuilder::new()
+            .schema(schema)
+            .settings(IndexSettings {
+                docstore_compress_dedicated_thread: false,
+                ..IndexSettings::default()
+            })
+            .create_in_ram()
+            .unwrap();
+        let mut index_simple_writer = SingleSegmentIndexWriter::new(index, mem_budget)?;
+
+        for doc in docs {
+            index_simple_writer.add_document(doc).unwrap()
+        }
+
+        index_simple_writer.finalize()
+    }
+
     /// Creates a new index in a given filepath.
     /// The index will use the [`MmapDirectory`].
     ///

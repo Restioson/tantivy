@@ -67,6 +67,7 @@ tokenizer-api = { version = "0.3", path = "./tokenizer-api", package = "tantivy-
 sketches-ddsketch = { version = "0.2.1", features = ["use_serde"] }
 futures-util = { version = "0.3.28", optional = true }
 fnv = "1.0.7"
+getrandom = { version = "*", features = ["js-sys"], optional = true }
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3.9"
@@ -126,6 +127,8 @@ quickwit = ["sstable", "futures-util"]
 # Increases indexing speed, but may lead to extremely rare missing terms, when there's a hash collision.
 # Uses 64bit ahash.
 compare_hash_only = ["stacker/compare_hash_only"]
+
+wasm-bindgen = ["dep:getrandom", "uuid/wasm-bindgen"]
 
 [workspace]
 members = [
